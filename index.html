@@ -10,100 +10,96 @@
 
 <body>
     <h2>Fraaaaannn!!!!</h2>
-    <input type="text" id="addUserInput" placeholder="Nombre de usuario">
+    <input id="createUserInput" type="text">
+    <button id="createUserBtn" type="button">Agregar usuario</button>
     <br>
-    <button id="addUserBtn" type="button">Agragar usuario</button>
-
-
-
-    <!-- <button id="myBtn" type="button">Obtener todos los usuarios</button> -->
     <table id='myTable' style="border: 1px solid;">
         <tr>
             <th>Nombres</th>
-            <th>Accion</th>
+            <th>Acción</th>
         </tr>
     </table>
 </body>
 <script>
-    async function getUsers() {
-        const response = await fetch('http://localhost:3000/users')
-        const data = await response.json()
-        return data
-    }
-    async function deleteUser(personId) {
-        const response2 = await fetch('http://localhost:3000/user', {
-            method: 'DELETE', // or 'PUT'
-            body: JSON.stringify(personId), // data can be `string` or {object}!
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        })
-        const data = await response2.json()
-        return data
-    }
-    async function createUser(data) {
-        console.log("🚀 ~ file: index.html ~ line 45 ~ createUser ~ data", data)
-        const response2 = await fetch('http://localhost:3000/user', {
-            method: 'POST', // or 'PUT'
-            body: JSON.stringify(data), // data can be `string` or {object}!
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        })
-        const resp = await response2.json()
-        return resp
-    }
-    async function funcDel(personId) {
-        console.log("personId", personId)
-        const resp = await deleteUser({ id: personId })
-        console.log("Respuesta de la eliminacion: ==== ", resp)
+
+    const createUserInput = document.getElementById("createUserInput");
+    const createUserBtn = document.getElementById("createUserBtn");
+    createUserBtn.addEventListener("click", async function () {
+        if (createUserInput.value != '') {
+            await createUserBackend({ name: createUserInput.value })
+        }
         refreshTable()
-    }
-    const inputChange = document.getElementById("addUserInput");
-    inputChange.addEventListener('keypress', async function (fran) {
-        //    console.log(this)
-        //    console.log("window.event", window.event.key)
+    })
+    createUserInput.addEventListener('keypress', async function (fran) {
+        //console.log(this.value)
+        //console.log(fran.target.value)
+        // console.log("Codigo", window.event.key)
         if (window.event.key == 'Enter') {
-            if (addUserInput.value != '') {
-                await createUser({ name: addUserInput.value })
-                addUserInput.value = ''
+            if (createUserInput.value != '') {
+                await createUserBackend({ name: createUserInput.value })
+                createUserInput.value = ''
             }
             refreshTable()
         }
-        //   console.log(fran.target.value)
     });
-    // const boton = document.getElementById("myBtn");
-    // boton.addEventListener("click", async function () {
-    //     refreshTable()
 
-    // });
-    const addUserButton = document.getElementById("addUserBtn");
-    const addUserInput = document.getElementById("addUserInput");
-    addUserButton.addEventListener("click", async function () {
-        if (addUserInput.value != '') {
-            await createUser({ name: addUserInput.value })
-        }
+
+    async function getUsers() {
+        const response = await fetch('http://localhost:3000/users') // GET
+        const data = await response.json()
+        return data
+    }
+    async function deleteUserBackend(personId) {
+        const response = await fetch('http://localhost:3000/user', {
+            method: 'DELETE',
+            body: JSON.stringify(personId),
+            headers: {
+                'Content-Type': 'application/json'
+            },
+        })
+        const data = await response.json()
+        return data
+    }
+
+    async function createUserBackend(data) {
+        const response = await fetch('http://localhost:3000/user', {
+            method: 'POST',
+            body: JSON.stringify(data),
+            headers: {
+                'Content-Type': 'application/json'
+            },
+        })
+        const dataResp = await response.json()
+        return dataResp
+    }
+
+    async function deleteUser(personId) {
+        console.log("Hola Fran", personId)
+        const resp = await deleteUserBackend({ id: personId })
+        console.log("respuesta del deleteUser del backend: ", resp)
         refreshTable()
-    });
+    }
+
     refreshTable()
+
     async function refreshTable() {
+        const response = await getUsers()
+        console.log(response)
+
         let table = document.getElementById("myTable");
-        table.innerHTML = "";
+        table.innerHTML = ''
         let row = table.insertRow();
         let cell1 = row.insertCell(0);
         let cell2 = row.insertCell(1);
-        cell1.innerHTML = 'Nombres';
-        cell2.innerHTML = 'Accion';
-        const respuesta = await getUsers()
-        respuesta.forEach(persona => {
-            let table = document.getElementById("myTable");
+        cell1.innerHTML = 'Nombres'
+        cell2.innerHTML = 'Acción'
+        response.forEach((persona) => {
             let row = table.insertRow();
             let cell1 = row.insertCell(0);
             let cell2 = row.insertCell(1);
             cell1.innerHTML = persona.name;
-            cell2.innerHTML = '<button onclick="funcDel(' + (persona.id) + ')"  type="button">X</button>'
+            cell2.innerHTML = '<button onclick="deleteUser(' + persona.id + ')" type="button">X</button>';
         })
-        // boton.click()
     }
 
 </script>
