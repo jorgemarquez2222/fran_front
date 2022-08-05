@@ -10,12 +10,14 @@
 
 <body>
     <h2>Fraaaaannn!!!!</h2>
-    <input id="createUserInput" data-edition type="text">
+    <input id="createUserInput" type="text">
     <button id="createUserBtn" type="button">Agregar usuario</button>
     <br>
     <br>
-    <input id="editUserInput" class="hiddenElement" type="text">
-    <button id="editUserBtn" class="hiddenElement" type="button">Editar usuario</button>
+
+    <input id="editUserInput" data-edition class="hiddenElement" type="text">
+    <button id="editUserBtn" class="hiddenElement" type="button">editar usuario</button>
+
 
     <table id='myTable' style="border: 1px solid;">
         <tr>
@@ -25,12 +27,12 @@
     </table>
 </body>
 <style>
-    .showElement {
-        display: block;
-    }
-
     .hiddenElement {
         display: none;
+    }
+
+    .showElement {
+        display: block;
     }
 </style>
 <script>
@@ -98,6 +100,7 @@
         return dataResp
     }
 
+
     async function deleteUser(personId) {
         console.log("Hola Fran", personId)
         const resp = await deleteUserBackend({ id: personId })
@@ -105,21 +108,21 @@
         refreshTable()
     }
 
+
     async function editUser(person) {
+        console.log("aqui va la paersona que se va a editar", person)
         const editUserInput = document.getElementById("editUserInput");
         const editUserBtn = document.getElementById("editUserBtn");
-        console.log("EditUser", person)
         editUserInput.classList.add("showElement")
         editUserBtn.classList.add("showElement")
         editUserInput.classList.remove("hiddenElement")
         editUserBtn.classList.remove("hiddenElement")
         editUserInput.value = person.name
         editUserInput.dataset.edition = person.id
-        refreshTable()
     }
+    const editUserBtn = document.getElementById("editUserBtn");
     editUserBtn.addEventListener("click", async function () {
         const editUserInput = document.getElementById("editUserInput");
-        const editUserBtn = document.getElementById("editUserBtn");
         if (editUserInput.value != '') {
             await editUserBackend({
                 id: editUserInput.dataset.edition,
@@ -130,9 +133,11 @@
         editUserBtn.classList.add("hiddenElement")
         editUserInput.classList.remove("showElement")
         editUserBtn.classList.remove("showElement")
-        refreshTable()
 
+        refreshTable()
     })
+
+
     refreshTable()
 
     async function refreshTable() {
@@ -151,7 +156,7 @@
             let cell1 = row.insertCell(0);
             let cell2 = row.insertCell(1);
             cell1.innerHTML = persona.name;
-            cell2.innerHTML = '<button onclick=deleteUser(' + persona.id + ') type="button">X</button>';
+            cell2.innerHTML = '<button onclick="deleteUser(' + persona.id + ')" type="button">X</button>';
             cell2.innerHTML += '<button onclick=editUser(' + JSON.stringify(persona) + ') type="button">E</button>';
         })
     }
