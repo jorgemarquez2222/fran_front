@@ -11,7 +11,8 @@
 <body>
     <h2>Fraaaaannn!!!!</h2>
     <input id="createUserInput" type="text">
-    <button id="createUserBtn" type="button">Agregar usuario</button>
+    <button id="createUserBtn" type="button">Add User</button>
+    <button id="searchUser" type="button">Find User</button>
     <br>
     <table id='myTable' style="border: 1px solid;">
         <tr>
@@ -26,7 +27,10 @@
     const createUserBtn = document.getElementById("createUserBtn");
     createUserBtn.addEventListener("click", async function () {
         if (createUserInput.value != '') {
-            await createUserBackend({ name: createUserInput.value })
+            const response = await getUserBackend({ name: createUserInput.value })
+            console.log("aqui si nojoda ", response.message.name)
+
+            //await createUserBackend({ name: createUserInput.value })
         }
         refreshTable()
     })
@@ -34,13 +38,15 @@
         //console.log(this.value)
         //console.log(fran.target.value)
         // console.log("Codigo", window.event.key)
-        if (window.event.key == 'Enter') {
+   
+        /*if (window.event.key == 'Enter') {
             if (createUserInput.value != '') {
                 await createUserBackend({ name: createUserInput.value })
                 createUserInput.value = ''
             }
             refreshTable()
-        }
+        }*/
+   
     });
 
 
@@ -49,6 +55,28 @@
         const data = await response.json()
         return data
     }
+
+    /*async function getUser(nameperson) {
+        const response = await fetch('http://localhost:3000/user') // GET
+        console.log("Hola Fran", nameperson)
+        const resp = await getUserBackend({ name: nameperson })
+        const data = await response.json()
+        return data
+    }*/
+
+    async function getUserBackend(nameperson) {
+        const response = await fetch('http://localhost:3000/user', {
+            method: 'POST',
+            body: JSON.stringify(nameperson),
+            headers: {
+                'Content-Type': 'application/json'
+            },
+        })
+        const data = await response.json()
+        return data
+    }
+
+
     async function deleteUserBackend(personId) {
         const response = await fetch('http://localhost:3000/user', {
             method: 'DELETE',
