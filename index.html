@@ -10,9 +10,13 @@
 
 <body>
     <h2>Fraaaaannn!!!!</h2>
-    <input id="createUserInput" type="text">
+    <input id="createUserInput" data-edition type="text">
     <button id="createUserBtn" type="button">Agregar usuario</button>
     <br>
+    <br>
+    <input id="editUserInput" class="hiddenElement" type="text">
+    <button id="editUserBtn" class="hiddenElement" type="button">Editar usuario</button>
+
     <table id='myTable' style="border: 1px solid;">
         <tr>
             <th>Nombres</th>
@@ -20,6 +24,15 @@
         </tr>
     </table>
 </body>
+<style>
+    .showElement {
+        display: block;
+    }
+
+    .hiddenElement {
+        display: none;
+    }
+</style>
 <script>
 
     const createUserInput = document.getElementById("createUserInput");
@@ -73,6 +86,18 @@
         return dataResp
     }
 
+    async function editUserBackend(data) {
+        const response = await fetch('http://localhost:3000/user', {
+            method: 'PUT',
+            body: JSON.stringify(data),
+            headers: {
+                'Content-Type': 'application/json'
+            },
+        })
+        const dataResp = await response.json()
+        return dataResp
+    }
+
     async function deleteUser(personId) {
         console.log("Hola Fran", personId)
         const resp = await deleteUserBackend({ id: personId })
@@ -80,6 +105,34 @@
         refreshTable()
     }
 
+    async function editUser(person) {
+        const editUserInput = document.getElementById("editUserInput");
+        const editUserBtn = document.getElementById("editUserBtn");
+        console.log("EditUser", person)
+        editUserInput.classList.add("showElement")
+        editUserBtn.classList.add("showElement")
+        editUserInput.classList.remove("hiddenElement")
+        editUserBtn.classList.remove("hiddenElement")
+        editUserInput.value = person.name
+        editUserInput.dataset.edition = person.id
+        refreshTable()
+    }
+    editUserBtn.addEventListener("click", async function () {
+        const editUserInput = document.getElementById("editUserInput");
+        const editUserBtn = document.getElementById("editUserBtn");
+        if (editUserInput.value != '') {
+            await editUserBackend({
+                id: editUserInput.dataset.edition,
+                name: editUserInput.value
+            })
+        }
+        editUserInput.classList.add("hiddenElement")
+        editUserBtn.classList.add("hiddenElement")
+        editUserInput.classList.remove("showElement")
+        editUserBtn.classList.remove("showElement")
+        refreshTable()
+
+    })
     refreshTable()
 
     async function refreshTable() {
@@ -98,7 +151,8 @@
             let cell1 = row.insertCell(0);
             let cell2 = row.insertCell(1);
             cell1.innerHTML = persona.name;
-            cell2.innerHTML = '<button onclick="deleteUser(' + persona.id + ')" type="button">X</button>';
+            cell2.innerHTML = '<button onclick=deleteUser(' + persona.id + ') type="button">X</button>';
+            cell2.innerHTML += '<button onclick=editUser(' + JSON.stringify(persona) + ') type="button">E</button>';
         })
     }
 
